@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Bot Platform</title>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <meta name="google-signin-client_id" content="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com">
+    <style>
+        /* Basic reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body and layout */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        p {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* Button styling */
+        .button {
+            display: inline-block;
+            background-color: #5c6bc0;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            width: 150px;
+            text-transform: uppercase;
+            margin: 10px auto;
+        }
+
+        .button:hover {
+            background-color: #3f51b5;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            width: 400px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .tab {
+            display: inline-block;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #eee;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            background-color: #5c6bc0;
+            color: white;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .modal-button {
+            width: 100%;
+            background-color: #5c6bc0;
+            padding: 10px;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        /* Coming soon cards */
+        .coming-soon-section {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 40px;
+        }
+
+        .card {
+            width: 250px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .card h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .card p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .card .button {
+            background-color: #8e44ad;
+        }
+
+        /* Bot container styling */
+        #botContainer {
+            display: none;
+            margin-top: 30px;
+        }
+
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Advanced Bot Platform</h1>
+        <p>Use the bot below or download it, but you'll need to sign up or log in first.</p>
+        
+        <!-- Bot interaction or download buttons -->
+        <button class="button" onclick="openModal()">Use Bot</button>
+        <button class="button" id="downloadButton" style="display:none;" onclick="downloadBot()">Download Bot</button>
+
+        <!-- Modal for sign-up/log-in -->
+        <div id="authModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h2 id="authTitle">Sign Up / Log In</h2>
+                <div class="tab active" id="loginTab" onclick="switchTab('login')">Log In</div>
+                <div class="tab" id="signupTab" onclick="switchTab('signup')">Sign Up</div>
+
+                <div id="loginForm">
+                    <input type="email" class="input-field" id="loginEmail" placeholder="Enter email">
+                    <input type="password" class="input-field" id="loginPassword" placeholder="Enter password">
+                    <button class="modal-button" onclick="login()">Log In</button>
+                </div>
+
+                <div id="signupForm" style="display: none;">
+                    <input type="email" class="input-field" id="signupEmail" placeholder="Enter email">
+                    <input type="password" class="input-field" id="signupPassword" placeholder="Enter password">
+                    <button class="modal-button" onclick="signup()">Sign Up</button>
+                </div>
+
+                <div class="g-signin2" data-onsuccess="onGoogleSignIn"></div> <!-- Google Sign-In Button -->
+            </div>
+        </div>
+
+        <!-- Bot Container: Hidden until login -->
+        <div id="botContainer">
+            <h2>Document Generator Bot</h2>
+            <!-- Embedded bot code as an iframe -->
+            <iframe src="index22.html"></iframe> <!-- Embedding the uploaded bot file -->
+        </div>
+
+        <!-- Coming soon section -->
+        <div class="coming-soon-section">
+            <div class="card">
+                <h3>Lead Generator Bot</h3>
+                <p>Automate your lead generation with our upcoming bot.</p>
+                <button class="button">Learn More</button>
+            </div>
+            <div class="card">
+                <h3>Chatbots on Demand</h3>
+                <p>Create chatbots on the fly with our chatbots on demand.</p>
+                <button class="button">Learn More</button>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2024 Numeros Company. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Open the modal
+        function openModal() {
+            document.getElementById("authModal").style.display = "block";
+        }
+
+        // Close the modal
+        function closeModal() {
+            document.getElementById("authModal").style.display = "none";
+        }
+
+        // Switch between log-in and sign-up tabs
+        function switchTab(tab) {
+            document.getElementById("loginTab").classList.remove('active');
+            document.getElementById("signupTab").classList.remove('active');
+            document.getElementById("loginForm").style.display = 'none';
+            document.getElementById("signupForm").style.display = 'none';
+
+            if (tab === 'login') {
+                document.getElementById("loginTab").classList.add('active');
+                document.getElementById("loginForm").style.display = 'block';
+                document.getElementById("authTitle").innerText = "Log In";
+            } else {
+                document.getElementById("signupTab").classList.add('active');
+                document.getElementById("signupForm").style.display = 'block';
+                document.getElementById("authTitle").innerText = "Sign Up";
+            }
+        }
+
+        // Simple localStorage-based signup function
+        function signup() {
+            const email = document.getElementById("signupEmail").value;
+            const password = document.getElementById("signupPassword").value;
+
+            // Store user credentials in localStorage
+            localStorage.setItem(email, password);
+            alert("Account created successfully!");
+
+            // Switch to login tab
+            switchTab('login');
+        }
+
+        // Simple localStorage-based login function
+        function login() {
+            const email = document.getElementById("loginEmail").value;
+            const password = document.getElementById("loginPassword").value;
+
+            // Check if user exists and password matches
+            if (localStorage.getItem(email) === password) {
+                closeModal();
+                document.getElementById("botContainer").style.display = "block";
+                document.getElementById("downloadButton").style.display = "inline-block";
+            } else {
+                alert("Invalid email or password.");
+            }
+        }
+
+        // Google Sign-In function
+        function onGoogleSignIn(googleUser) {
+            const profile = googleUser.getBasicProfile();
+            console.log('User signed in: ' + profile.getName());
+            closeModal();
+            document.getElementById("botContainer").style.display = "block";
+            document.getElementById("downloadButton").style.display = "inline-block";
+        }
+
+        // Download bot function
+        function downloadBot() {
+            const downloadCount = localStorage.getItem('downloadCount') || 0;
+            localStorage.setItem('downloadCount', parseInt(downloadCount) + 1);
+            window.location.href = "https://yourusername.github.io/bot-repo/index22.html"; // Add your hosted link here
+        }
+    </script>
+    <script src="script22.js"></script>
+    <script src="server.js"></script>
+
+
+</body>
+</html>
